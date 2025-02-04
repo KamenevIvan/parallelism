@@ -1,0 +1,3 @@
+/home/i.kamenev/comDir/parallelism/t1/cmakeVersion/build/CMakeFiles/SinSum.dir
+/home/i.kamenev/comDir/parallelism/t1/cmakeVersion/build/CMakeFiles/edit_cache.dir
+/home/i.kamenev/comDir/parallelism/t1/cmakeVersion/build/CMakeFiles/rebuild_cache.dir
