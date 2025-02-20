@@ -85,13 +85,14 @@ int main() {
     Matrix A(N, Vector(N, 1.0));
     Vector b(N, N + 1);
 
-    double t = omp_get_wtime();
+    
 
     #pragma omp parallel for num_threads(n_threads)
     for (int i = 0; i < N; ++i) {
         A[i][i] = 2.0;
     }
-
+    
+    double t = omp_get_wtime();
     Vector solution = simpleIterationMethod(A, b, n_threads);
 
     t = omp_get_wtime() - t;

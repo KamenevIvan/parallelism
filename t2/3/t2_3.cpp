@@ -82,13 +82,13 @@ int main() {
     int N;
     cout << "Enter the number of equations (N): ";
     cin >> N;
-    double t = omp_get_wtime();
+    
     Matrix A;
     Vector b;
 
     initializeSystem(A, b, N);
 
-
+    double t = omp_get_wtime();
     Vector solution = simpleIterationMethod(A, b);
 
     t = omp_get_wtime() - t;

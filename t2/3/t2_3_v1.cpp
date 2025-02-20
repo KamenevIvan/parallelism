@@ -80,7 +80,7 @@ int main() {
     
     double t = omp_get_wtime();
 
-    A.assign(N, Vector(N, 1.0));
+    
 
     #pragma omp parallel for num_threads(n_threads)
     for (int i = 0; i < N; ++i) {
@@ -88,7 +88,7 @@ int main() {
     }
     b.assign(N, N + 1); 
     
-
+    A.assign(N, Vector(N, 1.0));
     Vector solution = simpleIterationMethod(A, b, n_threads);
 
     t = omp_get_wtime() - t;
