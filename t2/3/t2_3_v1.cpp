@@ -5,6 +5,8 @@
 #include <time.h>
 #include <omp.h>
 
+#define N_THREADS 40
+
 using namespace std;
 
 const double EPSILON = 1e-5; 

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <cmath>
+#include <time.h>
 #include <omp.h>
 
 #define N_THREADS 40
