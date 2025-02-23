@@ -66,7 +66,7 @@ void run_parallel()
             }
         }
 
-        #pragma omp barrier // Ждем, пока главный поток выделит память
+        #pragma omp barrier
 
         #pragma omp for collapse(2)
         for (int i = 0; i < m; i++) {
