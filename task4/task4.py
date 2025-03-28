@@ -6,6 +6,7 @@ import threading
 import queue
 import os
 from typing import Tuple, Optional
+import numpy as np
 
 # Настройка логирования
 logPath = "log"
@@ -54,13 +55,13 @@ class SensorCam(Sensor):
                 self.cap.release()
             raise
     
-    def get(self) -> Optional[Tuple[bool, any]]:
+    def get(self) -> Optional[np.ndarray]:  # Добавьте импорт: import numpy as np
         try:
             ret, frame = self.cap.read()
             if not ret:
                 logging.error("Failed to grab frame from camera")
                 return None
-            return frame
+            return frame  # Возвращаем только frame (numpy.ndarray), а не кортеж (ret, frame)
         except Exception as e:
             logging.error(f"Error reading from camera: {str(e)}")
             return None
@@ -82,8 +83,8 @@ class WindowImage:
         self.last_sensor2_data = 0
     
     def update_display(self, camera_frame, sensor0_data, sensor1_data, sensor2_data):
-        if camera_frame is not None:
-            self.last_camera_frame = camera_frame.copy()
+        if camera_frame is not None and isinstance(camera_frame, np.ndarray):  # Проверяем тип
+            self.last_camera_frame = camera_frame.copy()  # Теперь copy() сработает
         if sensor0_data is not None:
             self.last_sensor0_data = sensor0_data
         if sensor1_data is not None:
@@ -110,6 +111,8 @@ def sensor_worker(sensor: Sensor, data_queue: queue.Queue, stop_event: threading
     while not stop_event.is_set():
         try:
             data = sensor.get()
+            if isinstance(sensor, SensorCam) and data is not None:
+                print(f"Camera frame shape: {data.shape}")  # Проверяем размер кадра
             data_queue.put((sensor, data))
         except Exception as e:
             logging.error(f"Sensor error: {str(e)}")
@@ -120,7 +123,7 @@ def main():
     parser = argparse.ArgumentParser(description="Sensor and camera data display")
     parser.add_argument("--camera", type=str, default="/dev/video0", help="Camera device name")
     parser.add_argument("--resolution", type=str, default="640x480", help="Camera resolution (e.g. 1280x720)")
-    parser.add_argument("--fps", type=float, default=30.0, help="Display frequency (Hz)")
+    parser.add_argument("--frequency", type=float, default=30.0, help="Display frequency (Hz)")
     
     args = parser.parse_args()
     
@@ -176,25 +179,25 @@ def main():
             sensor2_data = None
             
             try:
-                while not cam_queue.empty():
-                    camera_frame = cam_queue.get_nowait()
+                #while not cam_queue.empty():
+                    _, camera_frame = cam_queue.get_nowait()
             except queue.Empty:
                 pass
             
             try:
-                while not sensor0_queue.empty():
+                #while not sensor0_queue.empty():
                     _, sensor0_data = sensor0_queue.get_nowait()
             except queue.Empty:
                 pass
             
             try:
-                while not sensor1_queue.empty():
+                #while not sensor1_queue.empty():
                     _, sensor1_data = sensor1_queue.get_nowait()
             except queue.Empty:
                 pass
             
             try:
-                while not sensor2_queue.empty():
+                #while not sensor2_queue.empty():
                     _, sensor2_data = sensor2_queue.get_nowait()
             except queue.Empty:
                 pass
@@ -203,6 +206,7 @@ def main():
             if current_time - last_display_time >= display_interval:
                 window.update_display(camera_frame, sensor0_data, sensor1_data, sensor2_data)
                 last_display_time = current_time
+                cv2.waitKey(1)
     
     except Exception as e:
         logging.error(f"Main program error: {str(e)}")
