@@ -1,3 +1,0 @@
-2025-03-28 13:37:42,668 - ERROR - Main program error: 'Namespace' object has no attribute 'frequency'
-2025-03-28 13:39:03,597 - ERROR - Main program error: 'tuple' object has no attribute 'copy'
-2025-03-28 13:48:59,877 - ERROR - Main program error: 'tuple' object has no attribute 'copy'
