@@ -1,0 +1,6 @@
+workers:        sec
+multi 10:       37.68
+multi 2:        31.35
+single 1:       30.39; 
+multi 6:        35.49; 48.82
+multi 1:        105.37
