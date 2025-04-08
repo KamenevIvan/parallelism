@@ -164,6 +164,13 @@ def main():
         # Основной цикл
         display_interval = 1.0 / args.frequency
         last_display_time = time.time()
+
+        last_sensor0_value = 0
+        last_sensor0_time = time.time()
+        last_sensor1_value = 0
+        last_sensor1_time = time.time()
+        last_sensor2_value = 0
+        last_sensor2_time = time.time()
         
         while True:
             current_time = time.time()
@@ -187,21 +194,39 @@ def main():
             try:
                 #while not sensor0_queue.empty():
                     _, sensor0_data = sensor0_queue.get_nowait()
+                    last_sensor0_time = current_time  
             except queue.Empty:
-                pass
+                if 'last_sensor0_time' in locals():
+                    expected_increment = (current_time - last_sensor0_time) / 0.01  # 0.01 = 100Гц
+                    sensor0_data = last_sensor0_value + int(expected_increment)
             
             try:
                 #while not sensor1_queue.empty():
                     _, sensor1_data = sensor1_queue.get_nowait()
+                    last_sensor1_time = current_time  
             except queue.Empty:
-                pass
-            
+                if 'last_sensor1_time' in locals():
+                    expected_increment = (current_time - last_sensor1_time) / 0.1  # 0.01 = 100Гц
+                    sensor1_data = last_sensor1_value + int(expected_increment)
+                    
             try:
                 #while not sensor2_queue.empty():
                     _, sensor2_data = sensor2_queue.get_nowait()
+                    last_sensor2_time = current_time  
             except queue.Empty:
-                pass
+                if 'last_sensor0_time' in locals():
+                    expected_increment = (current_time - last_sensor2_time) / 1.0  # 0.01 = 100Гц
+                    sensor2_data = last_sensor2_value + int(expected_increment)
             
+            if sensor0_data is not None:
+                last_sensor0_value = sensor0_data
+            
+            if sensor1_data is not None:
+                last_sensor1_value = sensor1_data
+
+            if sensor2_data is not None:
+                last_sensor2_value = sensor2_data
+
             # Обновление дисплея с заданной частотой
             if current_time - last_display_time >= display_interval:
                 window.update_display(camera_frame, sensor0_data, sensor1_data, sensor2_data)
