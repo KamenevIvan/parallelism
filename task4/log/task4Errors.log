@@ -2,3 +2,5 @@
 2025-03-28 13:39:03,597 - ERROR - Main program error: 'tuple' object has no attribute 'copy'
 2025-03-28 13:48:59,877 - ERROR - Main program error: 'tuple' object has no attribute 'copy'
 2025-04-08 16:57:33,653 - ERROR - Main program error: cannot access local variable 'last_sensor2_time' where it is not associated with a value
+2025-04-12 09:20:15,577 - ERROR - Cannot open camera /dev/video0
+2025-04-12 09:20:15,577 - ERROR - Main program error: Cannot open camera /dev/video0
