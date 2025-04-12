@@ -33,15 +33,15 @@ class SensorX(Sensor):
     def __init__(self, delay):
         self._delay = delay
         self._data = 0
-        self._next_call = time.perf_counter()  # Инициализация таймера
+        self._next_call = time.perf_counter()  
     
     def get(self):
         now = time.perf_counter()
         if now < self._next_call:
-            time.sleep(max(0, self._next_call - now - 0.001))  # Корректировка с запасом
+            time.sleep(max(0, self._next_call - now - 0.001))  
         
         self._data += 1
-        self._next_call += self._delay  # Планируем следующий вызов
+        self._next_call += self._delay  
         return self._data
 
 class SensorCam(Sensor):
@@ -96,8 +96,8 @@ class WindowImage:
         self.last_sensor2_data = 0
     
     def update_display(self, camera_frame, sensor0_data, sensor1_data, sensor2_data):
-        if camera_frame is not None and isinstance(camera_frame, np.ndarray):  # Проверяем тип
-            self.last_camera_frame = camera_frame.copy()  # Теперь copy() сработает
+        if camera_frame is not None and isinstance(camera_frame, np.ndarray):  
+            self.last_camera_frame = camera_frame.copy()  
         if sensor0_data is not None:
             self.last_sensor0_data = sensor0_data
         if sensor1_data is not None:
@@ -120,19 +120,19 @@ class WindowImage:
 
 def sensor0_worker(sensor, data_queue, stop_event):
     from ctypes import windll
-    windll.winmm.timeBeginPeriod(1)  # Точность таймера 1 мс
+    windll.winmm.timeBeginPeriod(1)  
     
     while not stop_event.is_set():
         data = sensor.get()
         try:
-            data_queue.put_nowait(('sensor0', data))  # Неблокирующая запись
+            data_queue.put_nowait(('sensor0', data))  
         except queue.Full:
-            pass  # Сознательно теряем данные при переполнении
+            pass  
     
-    windll.winmm.timeEndPeriod(1)  # Восстанавливаем настройки  
+    windll.winmm.timeEndPeriod(1)   
 
 def sensor_worker(sensor: Sensor, data_queue: queue.Queue, stop_event: threading.Event):
-    # Инициализация переменных для измерения частоты
+    
     sample_count = 0
     start_time = time.perf_counter()
     last_print_time = start_time
@@ -140,17 +140,14 @@ def sensor_worker(sensor: Sensor, data_queue: queue.Queue, stop_event: threading
     
     while not stop_event.is_set():
         try:
-            # Замер времени перед получением данных
             timestamp_before = time.perf_counter()
             
             data = sensor.get()
-            
-            # Для SensorX (датчиков 0-2) собираем статистику
+        
             if isinstance(sensor, SensorX):
                 current_time = time.perf_counter()
                 sample_count += 1
-                
-                # Выводим статистику каждые 2 секунды
+
                 if current_time - last_print_time >= 2.0:
                     elapsed = current_time - start_time
                     avg_freq = sample_count / elapsed
@@ -163,14 +160,13 @@ def sensor_worker(sensor: Sensor, data_queue: queue.Queue, stop_event: threading
                         f"Samples={sample_count}"
                     )
                     
-                    # Сброс счетчиков
                     sample_count = 0
                     start_time = current_time
                     last_print_time = current_time
                 
                 last_timestamp = current_time
             
-            # Оригинальная логика обработки данных
+            
             if isinstance(sensor, SensorCam) and data is not None:
                 print(f"Camera frame shape: {data.shape}")  
             
@@ -258,7 +254,7 @@ def main():
                     last_sensor1_time = current_time  
             except queue.Empty:
                 if 'last_sensor1_time' in locals():
-                    expected_increment = (current_time - last_sensor1_time) / 0.1  # 0.01 = 100Гц
+                    expected_increment = (current_time - last_sensor1_time) / 0.1  
                     sensor1_data = last_sensor1_value + int(expected_increment)
                     
             try:
@@ -267,7 +263,7 @@ def main():
                     last_sensor2_time = current_time  
             except queue.Empty:
                 if 'last_sensor0_time' in locals():
-                    expected_increment = (current_time - last_sensor2_time) / 1.0  # 0.01 = 100Гц
+                    expected_increment = (current_time - last_sensor2_time) / 1.0
                     sensor2_data = last_sensor2_value + int(expected_increment)
             
             if sensor0_data is not None:
@@ -279,7 +275,7 @@ def main():
             if sensor2_data is not None:
                 last_sensor2_value = sensor2_data
 
-            # Обновление дисплея с заданной частотой
+
             if time.time() - last_display_time >= display_interval:
                 #print("\n\n\n!!!!!\n\n\n")
                 window.update_display(camera_frame, sensor0_data, sensor1_data, sensor2_data)
