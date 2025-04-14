@@ -56,6 +56,8 @@ class SensorCam(Sensor):
 class WindowImage:
     def __init__(self, display_frequency: float):
         self.display_frequency = display_frequency
+        self.display_interval = 1.0 / display_frequency
+        self.last_display_time = time.time()
         self.window_name = "Sensor Display"
         cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
         
@@ -63,6 +65,13 @@ class WindowImage:
         self.last_sensor0_data = 0
         self.last_sensor1_data = 0
         self.last_sensor2_data = 0
+    
+    def should_update_display(self) -> bool:
+        current_time = time.time()
+        if current_time - self.last_display_time >= self.display_interval:
+            self.last_display_time = current_time
+            return True
+        return False
     
     def update_display(self, camera_frame, sensor0_data, sensor1_data, sensor2_data):
         if camera_frame is not None:
@@ -74,7 +83,7 @@ class WindowImage:
         if sensor2_data is not None:
             self.last_sensor2_data = sensor2_data
         
-        if self.last_camera_frame is not None:
+        if self.last_camera_frame is not None and self.should_update_display():
             display_frame = self.last_camera_frame.copy()
             
             font = cv2.FONT_HERSHEY_SIMPLEX
