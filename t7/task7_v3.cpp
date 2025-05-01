@@ -76,7 +76,6 @@ void solve(double* __restrict grid,
 {
     const int totalElems = size * size;
 
-    // Allocate and map error buffer once
     double* errBuf = nullptr;
     cudaMalloc(reinterpret_cast<void**>(&errBuf), sizeof(double) * totalElems);
     acc_map_data(errBuf, errBuf, sizeof(double) * totalElems);
@@ -102,7 +101,6 @@ void solve(double* __restrict grid,
                         grid[idx + 1]    + grid[idx - 1]
                     );
                     gridNew[idx] = newVal;
-                    // write error value only at defined frequency
                     if ((iteration % ERR_FREQ) == 0) {
                         errBuf[idx] = std::fabs(grid[idx] - newVal);
                     }
@@ -110,7 +108,6 @@ void solve(double* __restrict grid,
             }
             nvtxRangePop();
 
-            // Perform reduction only when buffer was updated
             if ((iteration % ERR_FREQ) == 0) {
                 nvtxRangePushA("ErrorReduce");
                 #pragma acc host_data use_device(errBuf)
@@ -124,7 +121,6 @@ void solve(double* __restrict grid,
                 nvtxRangePop();
             }
 
-            // Swap buffers instead of copying
             std::swap(grid, gridNew);
             ++iteration;
         }
@@ -137,7 +133,6 @@ void solve(double* __restrict grid,
               << " s | Iterations: " << iteration
               << " | Final error: " << errorVal << std::endl;
 
-    // Cleanup
     acc_unmap_data(errBuf);
     cudaFree(errBuf);
 }

@@ -43,7 +43,6 @@ void initializeGrid(double* __restrict grid,
     std::memset(grid,    0, sizeof(double) * size * size);
     std::memset(gridNew, 0, sizeof(double) * size * size);
 
-    // corners
     grid[0]                       = 10.0;
     grid[size - 1]                = 20.0;
     grid[size*(size-1)]           = 30.0;
@@ -116,7 +115,6 @@ void solve(double* __restrict grid,
                 nvtxRangePop();
             }
 
-            // swap buffers instead of copy
             std::swap(grid, gridNew);
             ++iteration;
         }
