@@ -8,9 +8,6 @@ gpu_cublas:
 		-L/opt/nvidia/hpc_sdk/Linux_x86_64/23.11/cuda/12.3/lib64 \
 		-lcublas -lcudart task7.cpp
 
-clear:
-	rm task7 *.nsys-rep *.sqlite
-
 profile:
 	nsys profile --trace=nvtx,cuda,openacc --stats=true ./task7 --max-iters=50
 
